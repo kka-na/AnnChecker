@@ -1,0 +1,5 @@
+Vehicle
+Pedestrian
+Cyclist
+Sign
+Unknown
