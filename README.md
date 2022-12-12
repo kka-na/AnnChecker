@@ -8,6 +8,9 @@ Simple GUI based on PyQT that can check Annotation information of Dataset such a
 git clone https://github.com/kka-na/AnnChecker.git
 cd AnnChecker
 
+# If pyrcc5 not found,
+sudo apt-get install pyqt5-dev-tools
+
 # for use resource
 pyrcc5 -o resources_rc.py resources.qrc 
 
