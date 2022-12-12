@@ -28,6 +28,6 @@ python3 main.py
 ### Usage
 
 <p align="center">
-  <img width="500" src="./documentation/test_coco.gif"/>
+  <img width="800" src="/documentation/test_init.gif"/>
 </p>
 
