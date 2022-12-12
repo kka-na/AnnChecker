@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
   
     def disp_img(self, _object):
         self.ui.label.setPixmap(
-            QPixmap.fromImage(_object).scaled(self.ui.label.width(), self.ui.label.height(), aspectRatioMode=0))
+            QPixmap.fromImage(_object).scaled(self.ui.label.width(), self.ui.label.height(), aspectRatioMode=1))
         QCoreApplication.processEvents()
 
 if __name__ == "__main__":
