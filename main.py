@@ -42,6 +42,8 @@ class MainWindow(QMainWindow):
     def set_connect(self):
         self.ui.settingButton.clicked.connect(self.setting)
         self.ui.dataButton.clicked.connect(self.data)
+        self.ui.upButton.clicked.connect(self.go_up)
+        self.ui.downButton.clicked.connect(self.go_down)
 
     def data(self):
         path = str(QFileDialog.getExistingDirectory(None, 'Select Directory of top of datasets', QDir.currentPath(),
@@ -57,6 +59,13 @@ class MainWindow(QMainWindow):
         self.ui.label.setPixmap(
             QPixmap.fromImage(_object).scaled(self.ui.label.width(), self.ui.label.height(), aspectRatioMode=1))
         QCoreApplication.processEvents()
+
+    def go_up(self):
+        self.getData.move(-1)
+
+    def go_down(self):
+        self.getData.move(1)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
