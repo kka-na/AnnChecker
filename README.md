@@ -22,6 +22,9 @@ python3 main.py
 ```
 
 ### Target folder structure
+
+image and label structured with same file name 
+
     2D Object Detection ( YOLO Format )
     ├── image.jpg ( / png )
     ├── label.txt 
@@ -31,6 +34,6 @@ python3 main.py
 ### Usage
 
 <p align="center">
-  <img width="800" src="/documentation/test_init.gif"/>
+  <img width="800" src="/documentation/test_multiple.gif"/>
 </p>
 

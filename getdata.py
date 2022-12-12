@@ -6,42 +6,53 @@ from operator import itemgetter
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
+
 class GetData(QObject):
     def __init__(self):
         super(GetData, self).__init__()
         self.task = None
-       
+        self.base_path = ""
+        self.data_paths = []
+        self.data_len = 0
+
     def set_path(self, path):
+        self.base_path = str(path)
+        self.data_paths = []
+        self.now_idx = 0
         if self.task == 0:
-            jpg_list = sorted(Path(path).glob("*.jpg"))
-            if len(jpg_list) == 0:
-                self.data = sorted(Path(path).glob("*.png"))[0]
-            else:
-                self.data = jpg_list[0]
-            self.label = sorted(Path(path).glob("*.txt"))[0]
-   
+            self.data_paths.extend(os.path.basename(x)
+                                   for x in sorted(Path(path).glob("*.jpg")))
+            self.data_paths.extend(os.path.basename(x)
+                                   for x in sorted(Path(path).glob("*.png")))
+
+        self.data_len = len(self.data_paths)
         fr = open(str(path + "/classes.txt"))
         lines = fr.readlines()
         self.class_list = []
         for line in lines:
             self.class_list.append(line)
-        
-        if self.task == 0:
-            self.set_img()
+
+        self.send_datum()
 
     send_img = pyqtSignal(object)
 
-    def set_img(self):
+    def send_datum(self):
         if self.task == 0:
-            img = QImage(str(self.data))
+            self.set_img()
+
+    def set_img(self):
+        data_path = self.base_path+"/{}".format(self.data_paths[self.now_idx])
+        text_path = "{}.txt".format(data_path.split('.')[0])
+        if self.task == 0:
+            img = QImage(data_path)
 
         self.width = img.width()
         self.height = img.height()
 
-        bboxes = self.get_label_list(self.label)
+        bboxes = self.get_label_list(text_path)
         img = self.draw_boxes(img, bboxes)
         self.send_img.emit(img)
-      
+
     def get_label_list(self, file):
         bboxes = []
         if os.path.isfile(file):
@@ -49,7 +60,7 @@ class GetData(QObject):
             lines = fr.readlines()
             for line in lines:
                 val = line.split()
-                if len(val) == 5 :
+                if len(val) == 5:
                     conf = 1.0
                     calc_box = self.calc_boxes(val[1:])
                     _center = [float(val[1]) * self.width,
@@ -73,7 +84,6 @@ class GetData(QObject):
         ry = (float(_object[1]) + float(_object[3]) / 2) * self.height
         return [float(_object[2]) * self.width, float(_object[3]) * self.height, lx, ly, rx, ry]
 
-
     def draw_boxes(self, img, bboxes):
         if len(bboxes) > 0:
             painter = QPainter(img)
@@ -81,11 +91,13 @@ class GetData(QObject):
             for bbox in bboxes:
                 pen = self.get_bbox_pen(int(bbox['cls']))
                 painter.setPen(pen)
-                qrect = QRect(bbox['bbox'][0], bbox['bbox'][1], bbox['size'][0], bbox['size'][1])
+                qrect = QRect(bbox['bbox'][0], bbox['bbox']
+                              [1], bbox['size'][0], bbox['size'][1])
                 painter.drawRect(qrect)
                 painter.setFont(f)
                 class_name = self.class_list[int(bbox['cls'])]
-                painter.drawText(bbox['bbox'][0], bbox['bbox'][1] - 10, class_name)
+                painter.drawText(
+                    bbox['bbox'][0], bbox['bbox'][1] - 10, class_name)
             painter.end()
         return img
 
@@ -111,3 +123,12 @@ class GetData(QObject):
             qb = QBrush(QColor('green'))
             pen.setBrush(qb)
         return pen
+
+    def move(self, idx):
+        self.now_idx += idx
+        if self.now_idx < 0:
+            self.now_idx = 0
+        elif self.now_idx > self.data_len - 1:
+            self.now_idx = self.data_len - 1
+
+        self.send_datum()

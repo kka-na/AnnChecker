@@ -3,5 +3,7 @@
     <file>icon/icon.png</file>
     <file>icon/setting.png</file>
     <file>icon/data.png</file>
+    <file>icon/down.png</file>
+    <file>icon/up.png</file>
   </qresource>
 </RCC>
