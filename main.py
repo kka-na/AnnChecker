@@ -9,16 +9,16 @@ pyuic5 -o mainwindow.py mainwindow.ui
 # -*- coding: utf-8 -*-
 
 import sys
-import shutil
-import os
-from pathlib import Path
 
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from mainwindow import Ui_MainWindow
 
+
 import getdata
+import vtkwidget
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -27,9 +27,12 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.getData = None
         self.set_connect()
+        self.vtkWidget = None
+        self.imgLabel = None
 
     def setting(self):
-        tasks = ['2D Object Detection', '2D Semantic Segmentation', '3D Object Detection']
+        tasks = ['2D Object Detection',
+                 '2D Semantic Segmentation', '3D Object Detection']
         item, ok = QInputDialog().getItem(self, "Select Task", "Task:", tasks, 0, False)
         if ok:
             if item == tasks[0]:
@@ -37,7 +40,14 @@ class MainWindow(QMainWindow):
                 self.getData = getdata.GetData()
                 self.getData.task = self.task
                 self.getData.send_img.connect(self.disp_img)
-
+                self.set_layout()
+            elif item == tasks[2]:
+                self.task = 2
+                self.getData = getdata.GetData()
+                self.getData.task = self.task
+                self.getData.send_bin.connect(self.disp_bin)
+                self.vtkWidget = vtkwidget.VTKWidget()
+                self.set_layout()
 
     def set_connect(self):
         self.ui.settingButton.clicked.connect(self.setting)
@@ -45,20 +55,34 @@ class MainWindow(QMainWindow):
         self.ui.upButton.clicked.connect(self.go_up)
         self.ui.downButton.clicked.connect(self.go_down)
 
+    def clear_layout(self, layout):
+        for i in range(layout.count()):
+            layout.itemAt(i).widget().close()
+            layout.takeAt(i)
+
+    def set_layout(self):
+        if self.task == 0:
+            self.clear_layout(self.ui.dataLayout)
+            self.imgLabel = QLabel()
+            self.imgLabel.setAlignment(Qt.AlignCenter)
+            self.ui.dataLayout.addWidget(self.imgLabel)
+        elif self.task == 2:
+            self.clear_layout(self.ui.dataLayout)
+            self.ui.dataLayout.addWidget(self.vtkWidget.vtkWidget)
+            self.vtkWidget.init()
+
     def data(self):
         path = str(QFileDialog.getExistingDirectory(None, 'Select Directory of top of datasets', QDir.currentPath(),
                                                     QFileDialog.ShowDirsOnly))
         self.getData.set_path(path)
 
-    def clear_layout(self, layout):
-        for i in range(layout.count()):
-            layout.itemAt(i).widget().close()
-            self.layout.takeAt(i)
-  
     def disp_img(self, _object):
-        self.ui.label.setPixmap(
-            QPixmap.fromImage(_object).scaled(self.ui.label.width(), self.ui.label.height(), aspectRatioMode=1))
+        self.imgLabel.setPixmap(
+            QPixmap.fromImage(_object).scaled(self.imgLabel.width(), self.imgLabel.height(), aspectRatioMode=1))
         QCoreApplication.processEvents()
+
+    def disp_bin(self, _bin, _label):
+        self.vtkWidget.set_point_cloud(_bin, _label)
 
     def go_up(self):
         self.getData.move(-1)
