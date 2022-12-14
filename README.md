@@ -23,17 +23,26 @@ python3 main.py
 
 ### Target folder structure
 
-image and label structured with same file name 
+image or pointcloud and label structured with same file name 
 
     2D Object Detection ( YOLO Format )
     ├── image.jpg ( / png )
     ├── label.txt 
     └── classes.txt 
 
+    3D Object Detection ( KITTI Format )
+    ├── pointcloud.bin
+    ├── label.txt 
+    └── classes.txt 
 
 ### Usage
 
+**2D Object Detection**
 <p align="center">
   <img width="800" src="/documentation/test_multiple.gif"/>
 </p>
 
+**3D Object Detection**
+<p align="center">
+  <img width="800" src="/documentation/test_3d.gif"/>
+</p>
