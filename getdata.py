@@ -37,7 +37,6 @@ class GetData(QObject):
         for line in lines:
             cls = line.split('\n')[0]
             self.class_list.append(cls)
-        print(self.class_list)
         self.send_datum()
 
     send_img = pyqtSignal(object)
@@ -103,8 +102,8 @@ class GetData(QObject):
                 x, y, z = val[11:14]
                 h, w, l = val[8:11]
                 yaw = val[14]
-                bbox = {'cls': cls, 'wlh': (
-                    float(w), float(l), float(h)), 'xzy': (float(x), float(z), float(y)), 'heading': float(yaw)}
+                bbox = {'cls': cls, 'lhw': (
+                    float(l), float(h), float(w)), 'xyz': (float(x), float(y), float(z)), 'heading': float(yaw)}
                 bboxes.append(bbox)
         return bboxes
 
